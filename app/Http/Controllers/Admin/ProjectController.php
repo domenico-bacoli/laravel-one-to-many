@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Models\Type;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -29,8 +30,10 @@ class ProjectController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-    {
-        return view('admin.projects.create');
+    {   
+        $types = Type::all();
+        
+        return view('admin.projects.create', compact('types'));
     }
 
     /**
@@ -46,11 +49,8 @@ class ProjectController extends Controller
 
         $newProject = new Project();
         
-        $newProject->title = $formData['title'];
-        $newProject->thumb = $formData['thumb'];
-        $newProject->link = $formData['link'];
-        $newProject->languages = $formData['languages'];
-        $newProject->description = $formData['description'];
+        $newProject->fill($formData);
+
         $newProject->slug = Str::slug($formData['title'], '-');
 
         $newProject->save();
@@ -66,6 +66,7 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {   
+
         return view('admin.projects.show', compact('project'));
     }
 
@@ -77,7 +78,8 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
-        return view('admin.projects.edit', compact('project'));
+        $types = Type::all();
+        return view('admin.projects.edit', compact('project', 'types'));
     }
 
     /**
@@ -121,12 +123,14 @@ class ProjectController extends Controller
             'link' => 'required|max:30',
             'languages' => 'required|max:20',
             'description' => 'required',
+            'type_id' => 'nullable|exists:types,id',
 
         ], [
             'title.required' => 'inserisci un titolo',
             'title.max' => 'massimo 200 caratteri',
             'thumb.required' => "inserisci una url per l'anteprima",
             'description.required' => 'inserisci una descizione',
+            'type_id.exists' => 'Il tipo deve essere presente',
         ])->validate();
 
         return $validator;

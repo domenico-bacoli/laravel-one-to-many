@@ -3,6 +3,7 @@
 @section('content')
     <div class="container d-flex justify-content-center mt-5">
         <div class="card-project text-center">
+          <div class="type">Tipo: {{$project->type?->name}}</div>
             <div class="thumb">
                 <img src="{{$project->thumb}}" alt="anteprima progetto">
             </div>
